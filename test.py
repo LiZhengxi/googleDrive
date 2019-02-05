@@ -5,6 +5,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient.http import MediaFileUpload
+import glob
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -36,14 +37,36 @@ def main():
 
     # Call the Drive v3 API
 
-
-    file_metadata = {'name': 'testVideo.mp4'}
-    media = MediaFileUpload('2019-02-01_00_36_14.avi',
-                            mimetype='video/mp4')
-    file = service.files().create(body=file_metadata,
-                                        media_body=media,
+    # Create a folder
+    file_metadata1 = {
+        'name': 'Video',
+        'mimeType': 'application/vnd.google-apps.folder'
+    }
+    file = service.files().create(body=file_metadata1,
                                         fields='id').execute()
-    print ('File ID: %s' % file.get('id'))
+    folder_id = file.get('id')
+    #print ('Folder ID: %s' % folder_id) # Display the folder id
+    if os.path.isfile('GoogleFolderId.txt') !=True :
+        file = open("GoogleFolderId.txt", "w+")
+        file.write(folder_id)
+        print(folder_id)
+    else:
+        print('folder already create')
+    # Define the path of all the videos
+    path = r'C:\Users\Martin\Desktop\video'
+    # Loop all the files in the folder
+    for filename in os.listdir(path):
+        print (filename)
+        # Upload the file into the folder
+        file_metadata = {'name': filename,
+                         'parents': [folder_id]}
+        pathComplete = path+'/'
+        media = MediaFileUpload(pathComplete+ filename,
+                                mimetype='video/x-msvideo')
+        file = service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+        print ('File ID: %s' % file.get('id'))
 
 if __name__ == '__main__':
     main()
