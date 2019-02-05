@@ -37,21 +37,24 @@ def main():
 
     # Call the Drive v3 API
 
-    # Create a folder
-    file_metadata1 = {
-        'name': 'Video',
-        'mimeType': 'application/vnd.google-apps.folder'
-    }
-    file = service.files().create(body=file_metadata1,
-                                        fields='id').execute()
-    folder_id = file.get('id')
     #print ('Folder ID: %s' % folder_id) # Display the folder id
     if os.path.isfile('GoogleFolderId.txt') !=True :
+        # Create a folder in google drive
+        file_metadata1 = {
+        'name': 'Video',
+        'mimeType': 'application/vnd.google-apps.folder'
+        }
+        file = service.files().create(body=file_metadata1,
+                                        fields='id').execute()
+        folder_id = file.get('id')
         file = open("GoogleFolderId.txt", "w+")
         file.write(folder_id)
         print(folder_id)
     else:
         print('folder already create')
+        f = open("GoogleFolderId.txt", "r")
+        folder_id = f.read()
+
     # Define the path of all the videos
     path = r'C:\Users\Martin\Desktop\video'
     # Loop all the files in the folder
@@ -67,6 +70,7 @@ def main():
                                             media_body=media,
                                             fields='id').execute()
         print ('File ID: %s' % file.get('id'))
+    print ("finish the update")
 
 if __name__ == '__main__':
     main()
