@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import pickle
 import os.path
@@ -5,6 +6,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient.http import MediaFileUpload
+import os
 import time
 import glob
 
@@ -34,58 +36,66 @@ def main():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('drive', 'v3', credentials=creds)
 
     while 1 :
-        # Call the Drive v3 API
-        #print ('Folder ID: %s' % folder_id) # Display the folder id
-        if os.path.isfile('GoogleFolderId.txt') !=True :
-            # Create a folder in google drive
-            file_metadata1 = {
-            'name': 'Video',
-            'mimeType': 'application/vnd.google-apps.folder'
-            }
-            file = service.files().create(body=file_metadata1,
-                                            fields='id').execute()
-            folder_id = file.get('id')
-            file = open("GoogleFolderId.txt", "w+")
-            file.write(folder_id)
-            print(folder_id)
-        else:
-            print('folder already create')
-            f = open("GoogleFolderId.txt", "r")
-            folder_id = f.read()
-        q = "'{}' in parents".format(folder_id)
-        # Get the google drive file list
-        results = service.files().list(
-            pageSize=1000, q=q , fields="nextPageToken, files(id, name)").execute()
-        items = results.get('files', [])
-        listFile = []
-        if not items:
-            print('No files found.')
-        else :
-            for item in items:
-                listFile.append(u'{0}'.format(item['name']))
-
-        # Define the path of all the videos
-        path = r'C:\Users\Martin\Desktop\video'
-        # Loop all the files in the folder
-
-        for filename in os.listdir(path):
-            if filename not in listFile :
-                print (filename)
-                # Upload the file into the folder
-                file_metadata = {'name': filename,
-                                 'parents': [folder_id]}
-                pathComplete = path+'/'
-                media = MediaFileUpload(pathComplete+ filename,
-                                        mimetype='video/x-msvideo')
-                file = service.files().create(body=file_metadata,
-                                                    media_body=media,
+            try:
+                service = build('drive', 'v3', credentials=creds)
+                i=1
+            except  Exception:
+                print("not network")
+                i=0
+            # Call the Drive v3 API
+            #print ('Folder ID: %s' % folder_id) # Display the folder id
+            if (i==1):
+                if os.path.isfile('GoogleFolderId.txt') !=True :
+                    # Create a folder in google drive
+                    file_metadata1 = {
+                    'name': 'Video',
+                    'mimeType': 'application/vnd.google-apps.folder'
+                    }
+                    file = service.files().create(body=file_metadata1,
                                                     fields='id').execute()
-                print ('File ID: %s' % file.get('id'))
-        print ("finish the update")
-        time.sleep(3600)
+                    folder_id = file.get('id')
+                    file = open("GoogleFolderId.txt", "w+")
+                    file.write(folder_id)
+                    print(folder_id)
+                else:
+                    print('folder already create')
+                    f = open("GoogleFolderId.txt", "r")
+                    folder_id = f.read()
+                q = "'{}' in parents".format(folder_id)
+                # Get the google drive file list
+                results = service.files().list(
+                    pageSize=1000, q=q , fields="nextPageToken, files(id, name)").execute()
+                items = results.get('files', [])
+                listFile = []
+                if not items:
+                    print('No files found.')
+                else :
+                    for item in items:
+                        listFile.append(u'{0}'.format(item['name']))
+
+                # Define the path of all the videos
+                path = r'C:\Users\Martin\Desktop\video'
+                # Loop all the files in the folder
+
+                for filename in os.listdir(path):
+                    if filename not in listFile :
+                        print (filename)
+                        # Upload the file into the folder
+                        file_metadata = {'name': filename,
+                                         'parents': [folder_id]}
+                        pathComplete = path+'/'
+                        media = MediaFileUpload(pathComplete+ filename,
+                                                mimetype='video/x-msvideo')
+                        file = service.files().create(body=file_metadata,
+                                                            media_body=media,
+                                                            fields='id').execute()
+                        print ('File ID: %s' % file.get('id'))
+                print ("finish the update")
+                time.sleep(3600)
+            else :
+                time.sleep(1)
 
 
 if __name__ == '__main__':
