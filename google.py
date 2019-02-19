@@ -34,7 +34,7 @@ def main():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('drive', 'v3', credentials=creds)
+
 
     while 1 :
         try:
@@ -46,7 +46,7 @@ def main():
         if (i==1):
         # Call the Drive v3 API
         #print ('Folder ID: %s' % folder_id) # Display the folder id
-            if os.path.isfile('GoogleFolderId.txt') !=True :
+            if os.path.isfile(r"/home/pi/move/google/GoogleFolderId.txt") !=True :
                 # Create a folder in google drive
                 file_metadata1 = {
                 'name': 'Video',

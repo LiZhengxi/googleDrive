@@ -74,6 +74,10 @@ def main():
                 else :
                     for item in items:
                         listFile.append(u'{0}'.format(item['name']))
+                    if len(listFile)>=500:
+                        print("create a new file")
+
+                        continue
 
                 # Define the path of all the videos
                 path = r'C:\Users\Martin\Desktop\video'
@@ -93,7 +97,7 @@ def main():
                                                             fields='id').execute()
                         print ('File ID: %s' % file.get('id'))
                 print ("finish the update")
-                time.sleep(3600)
+
             else :
                 time.sleep(1)
 
